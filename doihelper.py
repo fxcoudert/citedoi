@@ -1,6 +1,16 @@
 #!/usr/bin/env python
 
-import sys, os, requests
+import sys, os, requests, json
+
+
+def pmid2doi(pmid):
+  """
+  Return a DOI from a PubMed numeric identifier (PMID)
+  """
+
+  url = "http://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/?ids=" + pmid + "&format=json&versions=no&tool=citedoi&email=me@me.com"
+  r = requests.get(url)
+  return json.loads(r.text)["records"][0]["doi"]
 
 def doi2bib(doi):
   """
@@ -38,6 +48,10 @@ def main():
     return
 
   try:
+    if doi[0:3] != "10.":
+      # If not a DOI, resolve through PubMed
+      doi = pmid2doi(doi)
+
     bib = doi2bib(doi)
   except:
     return
