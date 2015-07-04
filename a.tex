@@ -1,0 +1,25 @@
+\documentclass{article}
+
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage[sort&compress,numbers,super]{natbib}
+\usepackage[doikey]{citedoi}
+
+\begin{document}
+
+This is a reference.\citedoi{10.1021/jacs.5b02777}
+And here is couple.\citedoi{10.1038/ncomms5176, 10.1038/368561a0}
+And here is another.\citedoi{10.2174/1566523214666140825154158}
+And this is a note.\cite{note1}
+
+\bibliographystyle{achemso}
+
+% If you maintain a bib file manually, use this:
+\bibliography{manual}
+
+% If you don't (all references are with \citedoi), use this instead:
+%\bibliography{}
+
+% Compile with:
+%   pdflatex --shell-escape a && bibtex a && pdflatex --shell-escape a && pdflatex --shell-escape a
+
+\end{document}

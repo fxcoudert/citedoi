@@ -1,0 +1,44 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{citedoi}[2015/07/04 v0.1 (Francois-Xavier Coudert)]
+\RequirePackage{stringstrings}% string manipulation routines
+\RequirePackage{trimspaces}% what is says on the tin
+\RequirePackage{textcomp}% script-generated bibtex can contain characters from textcomp
+%
+\newif\ifFX@doikey
+\DeclareOption{doikey}{\FX@doikeytrue}
+\ProcessOptions\relax
+\makeatletter
+%
+% Fix \bibliography so that it includes our doi-*.bib file
+\let\fx@bibliography\bibliography
+\renewcommand\bibliography[1]{%
+  \stringlength[q]{#1}%
+  \ifnum\theresult>0%
+    \fx@bibliography{doi-\jobname,#1}%
+  \else%
+    \fx@bibliography{doi-\jobname}%
+  \fi%
+}
+%
+% Create the bibtex key from DOI (depending on options)
+\newcommand\fx@makekey[1]{%
+  \ifFX@doikey%
+    \edef\thestring{#1}% the DOI is the key
+  \else%
+    \substring[q]{\pdfmdfivesum{#1}}{1}{8}% key is shortened MD5 hash 
+  \fi%
+}
+%
+\newcommand\citedoi[1]{%
+  \edef\res{}%
+  \@for \el:=#1\do{%
+    \trim@spaces@in\el% trim spaces from each comma-separated argument
+    \fx@makekey{\el}% generate the key & store it into \thestring
+    \immediate\write18{./doihelper.py "doi-\jobname" "\el" \thestring}% make bibtex entry
+    \edef\res{\res,\thestring}% add it to the list
+  }%
+  \cite{\res}% cite everything
+}
+%
+\makeatother
+\endinput
